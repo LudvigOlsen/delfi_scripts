@@ -22,6 +22,7 @@ library(devtools)
 library(biovizBase)
 library(tidyverse)
 library(RCurl)
+library(stringr)
 library(optparse)
 
 

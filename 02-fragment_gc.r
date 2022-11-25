@@ -24,6 +24,7 @@ library(Rsamtools)
 library(devtools)
 library(Homo.sapiens)
 library(biovizBase)
+library(stringr)
 library(optparse)
 
 

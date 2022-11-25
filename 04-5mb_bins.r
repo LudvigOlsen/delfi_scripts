@@ -4,6 +4,7 @@ library(multidplyr)
 library(GenomicRanges)
 library(readxl)
 library(optparse)
+library(stringr)
 
 
 # Command line arguments

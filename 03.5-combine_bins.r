@@ -2,6 +2,7 @@
 library(tidyverse)
 library(GenomicRanges)
 library(optparse)
+library(stringr)
 
 # Command line arguments
 option_list = list(
