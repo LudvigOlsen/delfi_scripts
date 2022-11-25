@@ -50,6 +50,13 @@ option_list = list(
     help = "The output file containing the 100kb bins. Must have the extension `.rds`."
   ),
   make_option(
+    c("-f", "--filters_dir"),
+    action = "store",
+    default = NA,
+    type = 'character',
+    help = "The directory containing the `filters.hg38.rda` and `gaps.hg38.rda` files (or their hg19 counterparts)."
+  ),
+  make_option(
     c("-s", "--sample_id"),
     action = "store",
     default = NA,
@@ -70,6 +77,9 @@ if (is.na(opt$in_fragments_file)){
 }
 if (is.na(opt$out_bins_file)){
   stop("--out_bins_file was not specified.")
+}
+if (is.na(opt$filters_dir)){
+  stop("--filters_dir was not specified.")
 }
 if (is.na(opt$sample_id)){
   stop("--sample_id was not specified.")
@@ -92,8 +102,8 @@ if (!(opt$assembly %in% c("hg19", "hg38"))){
 
 if (opt$assembly == "hg19"){
   library(BSgenome.Hsapiens.UCSC.hg19)
-  load("./filters.hg19.rda"); filters <- filters.hg19
-  load("./gaps.hg19.rda"); gaps <- gaps.hg19
+  load(file.path(opt$filters_dir, "filters.hg19.rda")); filters <- filters.hg19
+  load(file.path(opt$filters_dir, "gaps.hg19.rda")); gaps <- gaps.hg19
 
   if (is.na(opt$in_bin_coordinates_file)){
     ABurl <- getURL('https://raw.githubusercontent.com/Jfortin1/HiC_AB_Compartments/master/data/hic_compartments_100kb_ebv_2014.txt', ssl.verifyhost=FALSE, ssl.verifypeer=FALSE)
@@ -103,8 +113,8 @@ if (opt$assembly == "hg19"){
   }
 } else {
   library(BSgenome.Hsapiens.UCSC.hg38)
-  load("./filters.hg38.rda"); filters <- filters.hg38
-  load("./gaps.hg38.rda"); gaps <- gaps.hg38
+  load(file.path(opt$filters_dir, "filters.hg38.rda")); filters <- filters.hg38
+  load(file.path(opt$filters_dir, "gaps.hg38.rda")); gaps <- gaps.hg38
   AB <- readRDS(file = opt$in_bin_coordinates_file)
 }
 
