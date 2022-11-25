@@ -18,7 +18,7 @@ option_list = list(
     default = NA,
     type = 'character',
     help = "The output file containing the concatenated 100kb bins. Must have the extension `.rds`."
-  ),
+  )
 )
 opt = parse_args(OptionParser(option_list = option_list))
 if (is.na(opt$in_bin_files)){

@@ -37,7 +37,7 @@ option_list = list(
     default = NA,
     type = 'character',
     help = "The output file for storing the genomic alignment pairs in. Should end in `.rds`."
-  ),
+  )
 )
 opt = parse_args(OptionParser(option_list = option_list))
 if (is.na(opt$in_bam_file)){

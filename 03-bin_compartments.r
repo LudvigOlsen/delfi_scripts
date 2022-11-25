@@ -61,7 +61,7 @@ option_list = list(
     default = NA,
     type = 'character',
     help = "The genomic assembly to use. Either 'hg19' or 'hg38'."
-  ),
+  )
 )
 opt = parse_args(OptionParser(option_list = option_list))
 if (is.na(opt$in_fragments_file)){
