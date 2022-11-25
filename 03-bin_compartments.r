@@ -35,6 +35,13 @@ option_list = list(
     help = "The fragments+gc file to get bin compartments for. Must have the extension .rds."
   ),
   make_option(
+    c("-b", "--in_bin_coordinates_file"),
+    action = "store",
+    default = NA,
+    type = 'character',
+    help = "A file with bin coordinates. Required when `--assembly` is 'hg38'. Must have the extension .rds."
+  ),
+  make_option(
     c("-o", "--out_bins_file"),
     action = "store",
     default = NA,
@@ -72,6 +79,9 @@ if (is.na(opt$assembly)){
 if (str_sub(opt$in_fragments_file, start= -4) != ".rds"){
   stop("--in_fragments_file must have the extension '.rds'.")
 }
+if (!is.na(opt$in_bin_coordinates_file) && str_sub(opt$in_bin_coordinates_file, start= -4) != ".rds"){
+  stop("--in_bin_coordinates_file must have the extension '.rds'.")
+}
 if (str_sub(opt$out_bins_file, start= -4) != ".rds"){
   stop("--out_bins_file must have the extension '.rds'.")
 }
@@ -83,16 +93,21 @@ if (opt$assembly == "hg19"){
   library(BSgenome.Hsapiens.UCSC.hg19)
   load("./filters.hg19.rda"); filters <- filters.hg19
   load("./gaps.hg19.rda"); gaps <- gaps.hg19
-  ABurl <- getURL('https://raw.githubusercontent.com/Jfortin1/HiC_AB_Compartments/master/data/hic_compartments_100kb_ebv_2014.txt', ssl.verifyhost=FALSE, ssl.verifypeer=FALSE)
+
+  if (is.na(opt$in_bin_coordinates_file)){
+    ABurl <- getURL('https://raw.githubusercontent.com/Jfortin1/HiC_AB_Compartments/master/data/hic_compartments_100kb_ebv_2014.txt', ssl.verifyhost=FALSE, ssl.verifypeer=FALSE)
+    AB <- read.table(textConnection(ABurl), header = TRUE)
+  } else {
+    AB <- readRDS(file = opt$in_bin_coordinates_file)
+  }
 } else {
   library(BSgenome.Hsapiens.UCSC.hg38)
   load("./filters.hg38.rda"); filters <- filters.hg38
   load("./gaps.hg38.rda"); gaps <- gaps.hg38
-  # TODO ABurl for hg38
+  AB <- readRDS(file = opt$in_bin_coordinates_file)
 }
 
 
-AB <- read.table(textConnection(ABurl), header = TRUE)
 AB <- makeGRangesFromDataFrame(AB, keep.extra.columns = TRUE)
 
 gc.correct <- function(coverage, bias) {

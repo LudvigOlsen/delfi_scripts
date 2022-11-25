@@ -44,3 +44,4 @@ all_bins <- lapply(bin_files, readRDS) %>%
   select(-matches("X"))
 
 saveRDS(all_bins, opt$out_bins_file)
+q('no')

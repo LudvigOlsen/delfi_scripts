@@ -130,4 +130,4 @@ colnames(features.sl) <-
 
 # Save features in csv
 write.csv(features.sl, file = opt$out_features_file)
-
+q('no')
