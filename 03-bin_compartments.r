@@ -100,6 +100,9 @@ if (!(opt$assembly %in% c("hg19", "hg38"))){
   stop("--assembly was one of {'hg19', 'hg38'}.")
 }
 
+print("Got these command line arguments: ")
+print(opt)
+
 if (opt$assembly == "hg19"){
   library(BSgenome.Hsapiens.UCSC.hg19)
   load(file.path(opt$filters_dir, "filters.hg19.rda")); filters <- filters.hg19
@@ -118,8 +121,15 @@ if (opt$assembly == "hg19"){
   AB <- readRDS(file = opt$in_bin_coordinates_file)
 }
 
+print("Loaded AB file")
 
-AB <- makeGRangesFromDataFrame(AB, keep.extra.columns = TRUE)
+AB <- makeGRangesFromDataFrame(
+  AB,
+  keep.extra.columns = TRUE,
+  starts.in.df.are.0based = TRUE # Added this
+)
+
+print("Made GRanges object")
 
 gc.correct <- function(coverage, bias) {
   i <- seq(min(bias, na.rm = TRUE), max(bias, na.rm = TRUE), by = 0.001)
