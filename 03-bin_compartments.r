@@ -149,6 +149,7 @@ arms <- GenomicRanges::setdiff(chromosomes, tcmeres)
 print("Non-tel/centromere arms"); print(arms)
 arms <- arms[-c(25,27,29,41,43)]
 print("Filtered arms"); print(arms)
+print("Current arm levels"); print(arms$arm)
 
 armlevels <- c("1p","1q","2p","2q","3p","3q","4p","4q","5p","5q","6p","6q",
                "7p","7q","8p","8q", "9p", "9q","10p","10q","11p","11q","12p",
