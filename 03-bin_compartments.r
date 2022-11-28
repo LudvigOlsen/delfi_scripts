@@ -156,10 +156,11 @@ armlevels <- c("1p","1q","2p","2q","3p","3q","4p","4q","5p","5q","6p","6q",
                "12q","13q","14q","15q","16p","16q","17p","17q","18p","18q",
                "19p", "19q","20p","20q","21q","22q")
 
-arms$arm <- armlevels
+# Q: Does it work to not set these? It fails because there are 39 levels but only 22 chromosomes
+# arms$arm <- armlevels
 
-print("Set these arm levels: ")
-print(arms$arm)
+# print("Set these arm levels: ")
+# print(arms$arm)
 
 AB <- AB[-queryHits(findOverlaps(AB, gaps))]
 print("Removed intervals overlapping with gaps")
