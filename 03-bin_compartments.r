@@ -133,8 +133,8 @@ print("Made GRanges object")
 
 gc.correct <- function(coverage, bias) {
   i <- seq(min(bias, na.rm = TRUE), max(bias, na.rm = TRUE), by = 0.001)
-  coverage.trend <- loess(coverage ~ bias)
-  coverage.model <- loess(predict(coverage.trend, i) ~ i)
+  coverage.trend <- loess(coverage ~ bias, na.action = na.exclude)
+  coverage.model <- loess(predict(coverage.trend, i) ~ i, na.action = na.exclude)
   coverage.pred <- predict(coverage.model, bias)
   coverage.corrected <-
     coverage - coverage.pred + median(coverage)
