@@ -154,8 +154,18 @@ armlevels <- c("1p","1q","2p","2q","3p","3q","4p","4q","5p","5q","6p","6q",
                "19p", "19q","20p","20q","21q","22q")
 
 arms$arm <- armlevels
+
+print("Set these arm levels: ")
+print(arms$arm)
+
 AB <- AB[-queryHits(findOverlaps(AB, gaps))]
+print("Removed intervals overlapping with gaps")
 AB <- AB[queryHits(findOverlaps(AB, arms))]
+print("Extracted intervals overlapping with chromosome arms")
+
+print("AB:")
+print(AB)
+
 AB$arm <- armlevels[subjectHits(findOverlaps(AB, arms))]
 
 seqinfo(AB) <- seqinfo(Hsapiens)[seqlevels(seqinfo(AB))]
