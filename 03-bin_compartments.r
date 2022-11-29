@@ -223,6 +223,13 @@ q75 <- quantile(w, 0.75)
 short <- rowSums(counts[, 1:51])
 long <- rowSums(counts[, 52:121])
 ratio <- short / long
+
+print("Entering GC correction mode! Uhhh")
+print("Bin GC NAs: "); print(sum(is.na(bingc)))
+print("short NAs: "); print(sum(is.na(short)))
+print("long NAs: "); print(sum(is.na(long)))
+print("ratio NAs: "); print(sum(is.na(ratio)))
+
 short.corrected = gc.correct(short, bingc)
 long.corrected = gc.correct(long, bingc)
 nfrags.corrected = gc.correct(short + long, bingc)
