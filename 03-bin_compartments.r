@@ -225,6 +225,7 @@ long <- rowSums(counts[, 52:121])
 ratio <- short / long
 
 print("Entering GC correction mode! Uhhh")
+print("Bin GC summary: "); print(summary(bingc))
 print("Bin GC NAs: "); print(sum(is.na(bingc)))
 print("short NAs: "); print(sum(is.na(short)))
 print("long NAs: "); print(sum(is.na(long)))
