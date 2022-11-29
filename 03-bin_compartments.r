@@ -132,12 +132,15 @@ AB <- makeGRangesFromDataFrame(
 print("Made GRanges object")
 
 gc.correct <- function(coverage, bias) {
-  # Fails when there NAs in the bias
+  # Fails when there Infs/NAs in the bias
   # So we set NAs to median GC
   bias[is.na(bias)] <- median(bias, na.rm=TRUE)
   if (any(is.na(coverage))){
-    # We can't predict on NAs, so we correct the non-NAs
-    coverage[!is.na(coverage)] <- gc.correct(coverage[!is.na(coverage)], bias[!is.na(coverage)])
+    # We can't predict on NAs or Infs, so we correct the others only
+    coverage[!is.na(coverage) & !is.infinite(coverage)] <- gc.correct(
+      coverage[!is.na(coverage) & !is.infinite(coverage)],
+      bias[!is.na(coverage) & !is.infinite(coverage)]
+    )
     return(coverage)
   }
   i <- seq(min(bias, na.rm = TRUE), max(bias, na.rm = TRUE), by = 0.001)
