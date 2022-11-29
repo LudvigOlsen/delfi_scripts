@@ -24,3 +24,6 @@ changes have been made:
 
 5)  Added/replaced command line arguments to use `optparse` and handle
     in- and output files in parent workflow.
+
+6)  GC correction failed when the GC content (`bias` argument) had
+    `NA`s. So we set them to the median value.

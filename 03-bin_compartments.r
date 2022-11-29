@@ -132,6 +132,9 @@ AB <- makeGRangesFromDataFrame(
 print("Made GRanges object")
 
 gc.correct <- function(coverage, bias) {
+  # Fails when there NAs in the bias
+  # So we set NAs to median GC
+  bias[is.na(bias)] <- median(bias, na.rm=TRUE)
   i <- seq(min(bias, na.rm = TRUE), max(bias, na.rm = TRUE), by = 0.001)
   coverage.trend <- loess(coverage ~ bias, na.action = na.exclude)
   coverage.model <- loess(predict(coverage.trend, i) ~ i, na.action = na.exclude)
@@ -225,7 +228,8 @@ long <- rowSums(counts[, 52:121])
 ratio <- short / long
 
 print("Entering GC correction mode! Uhhh")
-print("Bin GC summary: "); print(summary(bingc)); print(length(bingc))
+print("Num elements: "); print(length(bingc))
+print("Bin GC summary: "); print(summary(bingc));
 print("Shorts summary: "); print(summary(short))
 print("Longs summary: "); print(summary(long))
 print("Ratios summary: "); print(summary(ratio))

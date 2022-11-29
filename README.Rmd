@@ -24,3 +24,6 @@ This fork of `delfi_scripts` is for benchmarking against the DELFI method (short
 4) The features are saved as a csv file, so we can read them into python more easily. The feature creation is performed directly in `04-5mb_bins.r` instead of `06-gbm_full.r`.
 
 5) Added/replaced command line arguments to use `optparse` and handle in- and output files in parent workflow.
+
+6) GC correction failed when the GC content (`bias` argument) had `NA`s. So we set them to the median value.
+
