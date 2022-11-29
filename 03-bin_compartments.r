@@ -106,7 +106,7 @@ print(opt)
 if (opt$assembly == "hg19"){
   library(BSgenome.Hsapiens.UCSC.hg19)
   load(file.path(opt$filters_dir, "filters.hg19.rda")); filters <- filters.hg19
-  load(file.path(opt$gaps_dir, "gaps.hg19.rda")); gaps <- gaps.hg19
+  load(file.path(opt$filters_dir, "gaps.hg19.rda")); gaps <- gaps.hg19
 
   if (is.na(opt$in_bin_coordinates_file)){
     ABurl <- getURL('https://raw.githubusercontent.com/Jfortin1/HiC_AB_Compartments/master/data/hic_compartments_100kb_ebv_2014.txt', ssl.verifyhost=FALSE, ssl.verifypeer=FALSE)
@@ -117,7 +117,7 @@ if (opt$assembly == "hg19"){
 } else {
   library(BSgenome.Hsapiens.UCSC.hg38)
   load(file.path(opt$filters_dir, "filters.hg38.rda")); filters <- filters.hg38
-  load(file.path(opt$gaps_dir, "gaps.hg38.rda")); gaps <- gaps.hg38
+  load(file.path(opt$filters_dir, "gaps.hg38.rda")); gaps <- gaps.hg38
   AB <- readRDS(file = opt$in_bin_coordinates_file)
 }
 
