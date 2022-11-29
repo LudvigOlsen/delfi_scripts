@@ -208,7 +208,7 @@ bin.list <- split(fragments[queryHits(olaps)], subjectHits(olaps))
 bingc <- rep(NA, length(bin.list))
 bingc[unique(subjectHits(olaps))] <-
   sapply(bin.list, function(x)
-    mean(x$gc))
+    mean(x$gc, na.rm=TRUE))
 
 ### Get modes
 Mode <- function(x) {
@@ -225,11 +225,10 @@ long <- rowSums(counts[, 52:121])
 ratio <- short / long
 
 print("Entering GC correction mode! Uhhh")
-print("Bin GC summary: "); print(summary(bingc))
-print("Bin GC NAs: "); print(sum(is.na(bingc)))
-print("short NAs: "); print(sum(is.na(short)))
-print("long NAs: "); print(sum(is.na(long)))
-print("ratio NAs: "); print(sum(is.na(ratio)))
+print("Bin GC summary: "); print(summary(bingc)); print(length(bingc))
+print("Shorts summary: "); print(summary(short))
+print("Longs summary: "); print(summary(long))
+print("Ratios summary: "); print(summary(ratio))
 
 short.corrected = gc.correct(short, bingc)
 long.corrected = gc.correct(long, bingc)
