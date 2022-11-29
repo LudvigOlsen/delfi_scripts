@@ -135,6 +135,11 @@ gc.correct <- function(coverage, bias) {
   # Fails when there NAs in the bias
   # So we set NAs to median GC
   bias[is.na(bias)] <- median(bias, na.rm=TRUE)
+  if (any(is.na(coverage))){
+    # We can't predict on NAs, so we correct the non-NAs
+    coverage[!is.na(coverage)] <- gc.correct(coverage[!is.na(coverage)], bias[!is.na(coverage)])
+    return(coverage)
+  }
   i <- seq(min(bias, na.rm = TRUE), max(bias, na.rm = TRUE), by = 0.001)
   coverage.trend <- loess(coverage ~ bias, na.action = na.exclude)
   coverage.model <- loess(predict(coverage.trend, i) ~ i, na.action = na.exclude)
@@ -225,7 +230,7 @@ q75 <- quantile(w, 0.75)
 
 short <- rowSums(counts[, 1:51])
 long <- rowSums(counts[, 52:121])
-ratio <- short / long
+ratio <- short / long # Inf when long is 0?
 
 print("Entering GC correction mode! Uhhh")
 print("Num elements: "); print(length(bingc))
