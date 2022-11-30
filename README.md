@@ -27,3 +27,7 @@ changes have been made:
 
 6)  GC correction failed when the GC content (`bias` argument) had
     `NA`s. So we set them to the median value.
+
+7)  Extraction of GC contents per fragment required insane amounts of
+    RAM (\>512gb available for some files), so we replaced the original
+    approach with the one used in DELFI Lucas (later paper).

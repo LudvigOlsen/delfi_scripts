@@ -38,6 +38,13 @@ option_list = list(
     help = "The GALP file to get fragments and GC contents for. Must have the extension .rds."
   ),
   make_option(
+    c("-c", "--in_cytosines_file"),
+    action = "store",
+    default = NA,
+    type = 'character',
+    help = "The cytosine file to get GC contents for each fragment. Must have the extension .rds."
+  ),
+  make_option(
     c("-o", "--out_fragments_file"),
     action = "store",
     default = NA,
@@ -56,6 +63,9 @@ opt = parse_args(OptionParser(option_list = option_list))
 if (is.na(opt$in_galp_file)){
   stop("--in_galp_file was not specified.")
 }
+if (is.na(opt$in_cytosines_file)){
+  stop("--in_cytosines_file was not specified.")
+}
 if (is.na(opt$out_fragments_file)){
   stop("--out_fragments_file was not specified.")
 }
@@ -64,6 +74,9 @@ if (is.na(opt$assembly)){
 }
 if (str_sub(opt$in_galp_file, start= -4) != ".rds"){
   stop("--in_galp_file must have the extension '.rds'.")
+}
+if (str_sub(opt$in_cytosines_file, start= -4) != ".rds"){
+  stop("--in_cytosines_file must have the extension '.rds'.")
 }
 if (str_sub(opt$out_fragments_file, start= -4) != ".rds"){
   stop("--out_fragments_file must have the extension '.rds'.")
@@ -82,13 +95,29 @@ galp <- readRDS(opt$in_galp_file)
 frags <- granges(keepSeqlevels(galp, paste0("chr", 1:22), pruning.mode = "coarse"),
                  on.discordant.seqnames = "drop")
 
+# Load cytosines file
+cytosines <- readRDS(opt$in_cytosines_file)
+
 ## Filter outliers
 w.all <- width(frags)
 q.all <- quantile(w.all, c(0.001, 0.999))
 frags <- frags[which(w.all > q.all[1] & w.all < q.all[2])]
 
-gcs <- GCcontent(Hsapiens, unstrand(frags))
-frags$gc <- gcs
+## Get fragment level GC. Use lookup for where all Cs and Gs are in hg19/hg38.
+## cytosines contains C locations on both strands, so can
+## use ignore.strand=TRUE to get G locations also
+frags$gc_count <- countOverlaps(frags, cytosines, ignore.strand=TRUE)
+rm(cytosines)
+gc()
+
+# Divide by fragment lengths
+frags$gc <- frags$gc_count/w.all
+
+# NOTE: This was the original GC content extraction
+# but it requires insane amounts of RAM (>512gb available for 2 bam files)
+# The above "cytosines" version is from DELFI Lucas (later paper)
+#gcs <- GCcontent(Hsapiens, unstrand(frags))
+#frags$gc <- gcs
 
 saveRDS(frags, opt$out_fragments_file)
 q('no')
