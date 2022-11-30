@@ -12,6 +12,7 @@ if (!requireNamespace("Homo.sapiens", quietly = TRUE))
   BiocManager::install("Homo.sapiens")
 
 library(optparse)
+library(stringr)
 library(GenomicRanges)
 library(Biostrings)
 library(Homo.sapiens)
