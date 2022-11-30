@@ -111,7 +111,8 @@ rm(cytosines)
 gc()
 
 # Divide by fragment lengths
-frags$gc <- frags$gc_count/w.all
+# NOTE: Need to recompute widths after subsetting of frags (or perform same subsetting)
+frags$gc <- frags$gc_count/width(frags)
 
 # NOTE: This was the original GC content extraction
 # but it requires insane amounts of RAM (>512gb available for 2 bam files)
