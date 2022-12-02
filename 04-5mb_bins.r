@@ -24,7 +24,7 @@ option_list = list(
     help = "The output file containing the summarized 5mb bins. Must have the extension `.rds`."
   ),
   make_option(
-    c("-o", "--out_features_file"),
+    c("-f", "--out_features_file"),
     action = "store",
     default = NA,
     type = 'character',
