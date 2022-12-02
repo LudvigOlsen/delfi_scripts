@@ -104,6 +104,9 @@ df.fr3 <- df.fr2 %>% group_by(id, seqnames, arm, combine) %>%
 # Save 5mb bins
 saveRDS(df.fr3, opt$out_bins_file) # "bins_5mbcompartments.rds"
 
+print("Saved 5mb bin compartments")
+print(head(df.fr3), 10)
+
 # Convert to features
 features.cov <- df.fr3 %>%
   ungroup() %>%
@@ -115,6 +118,8 @@ features.cov <- df.fr3 %>%
   t() %>%
   as.data.frame()
 
+print("Calculated total features"); print(head(features.cov, 10))
+
 features.short <- df.fr3 %>%
   ungroup() %>%
   select(short.corrected2, id, bin) %>%
@@ -124,6 +129,8 @@ features.short <- df.fr3 %>%
   scale() %>%
   t() %>%
   as.data.frame()
+
+print("Calculated short features"); print(head(features.short, 10))
 
 features.sl <- cbind(features.cov, features.short)
 colnames(features.sl) <-
