@@ -105,7 +105,8 @@ df.fr3 <- df.fr2 %>% group_by(id, seqnames, arm, combine) %>%
 saveRDS(df.fr3, opt$out_bins_file) # "bins_5mbcompartments.rds"
 
 print("Saved 5mb bin compartments")
-print(head(df.fr3), 10)
+print(head(df.fr3, 10))
+print(colnames(df.fr3))
 
 # Convert to features
 features.cov <- df.fr3 %>%
@@ -123,7 +124,7 @@ print("Calculated total features"); print(head(features.cov, 10))
 features.short <- df.fr3 %>%
   ungroup() %>%
   select(short.corrected2, id, bin) %>%
-  spread(sample, short.corrected2) %>%
+  spread(id, short.corrected2) %>%
   select(-bin) %>%
   na.omit() %>%
   scale() %>%
