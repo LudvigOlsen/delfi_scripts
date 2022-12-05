@@ -231,6 +231,7 @@ medians <- median(w)
 q25 <- quantile(w, 0.25)
 q75 <- quantile(w, 0.75)
 
+# These indices are probably fragment lengths - so 100-150, 151-22
 short <- rowSums(counts[, 1:51])
 long <- rowSums(counts[, 52:121])
 ratio <- short / long # Inf when long is 0? NOTE: ratio is not used in features anyway

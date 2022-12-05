@@ -44,5 +44,14 @@ all_bins <- lapply(bin_files, readRDS) %>%
   select(id, everything()) %>%
   select(-matches("X"))
 
+# Sanity check: Assert that all files have the same number of rows
+if (all_bins %>%
+  group_by(id) %>%
+  summarize(n=n()) %>%
+  pull(n) %>%
+  unique() %>% length != 1){
+  stop("Not all IDs had the same number of rows!")
+}
+
 saveRDS(all_bins, opt$out_bins_file)
 q('no')

@@ -114,8 +114,13 @@ features.cov <- df.fr3 %>%
   select(nfrags.corrected2, id, bin) %>%
   spread(id, nfrags.corrected2) %>%
   select(-bin) %>%
-  na.omit() %>%
-  scale() %>%
+  # The na.omit() call would remove bins where one or more samples are NA
+  # but this would be done only for this dataset, and we
+  # wish to check cross-dataset, so we move this to the python script
+  # na.omit() %>%
+  # Scaling here introduces leakage between train/test sets
+  # So we do the standardization as part of the cross-validation instead
+  # scale() %>%
   t() %>%
   as.data.frame()
 
@@ -126,8 +131,13 @@ features.short <- df.fr3 %>%
   select(short.corrected2, id, bin) %>%
   spread(id, short.corrected2) %>%
   select(-bin) %>%
-  na.omit() %>%
-  scale() %>%
+  # The na.omit() call would remove bins where one or more samples are NA
+  # but this would be done only for this dataset, and we
+  # wish to check cross-dataset, so we move this to the python script
+  # na.omit() %>%
+  # Scaling here introduces leakage between train/test sets
+  # So we do the standardization as part of the cross-validation instead
+  # scale() %>%
   t() %>%
   as.data.frame()
 
@@ -135,7 +145,8 @@ print("Calculated short features"); print(head(features.short, 10))
 
 features.sl <- cbind(features.cov, features.short)
 colnames(features.sl) <-
-  c(paste0("total", 1:498), paste0("short", 1:498))
+  c(paste0("total_", seq_along(colnames(features.cov))),
+    paste0("short_", seq_along(colnames(features.short))))
 
 # Save features in csv
 write.csv(features.sl, file = opt$out_features_file)
