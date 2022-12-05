@@ -29,3 +29,5 @@ This fork of `delfi_scripts` is for benchmarking against the DELFI method (short
 
 7) Extraction of GC contents per fragment required insane amounts of RAM (>512gb available for some files), so we replaced the original approach with the one used in DELFI Lucas (later paper).
 
+8) When summing across the 50 100kbp bins at a time, we ignore `NA`s instead of making the full 5mbp bin `NA`. This should reduce the number of 5mbp bins that are `NA` leading to removal of entire bins (which is problematic in a cross-dataset context when the test set has new NAs - would require imputation or similar).
+
