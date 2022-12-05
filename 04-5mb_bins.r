@@ -150,4 +150,11 @@ colnames(features.sl) <-
 
 # Save features in csv
 write.csv(features.sl, file = opt$out_features_file)
+
+# Report NAs
+print("Number of NAs in dataset: ")
+print(sum(is.na(features.sl)))
+print("Number of columns with NAs: ")
+print(sum(colSums(is.na(features.sl))!=0))
+
 q('no')
