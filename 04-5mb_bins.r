@@ -118,9 +118,8 @@ features.cov <- df.fr3 %>%
   # but this would be done only for this dataset, and we
   # wish to check cross-dataset, so we move this to the python script
   # na.omit() %>%
-  # Scaling here introduces leakage between train/test sets
-  # So we do the standardization as part of the cross-validation instead
-  # scale() %>%
+  # Standardize each sample separately
+  scale() %>%
   t() %>%
   as.data.frame()
 
@@ -135,9 +134,8 @@ features.short <- df.fr3 %>%
   # but this would be done only for this dataset, and we
   # wish to check cross-dataset, so we move this to the python script
   # na.omit() %>%
-  # Scaling here introduces leakage between train/test sets
-  # So we do the standardization as part of the cross-validation instead
-  # scale() %>%
+  # Standardize each sample separately
+  scale() %>%
   t() %>%
   as.data.frame()
 
