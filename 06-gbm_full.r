@@ -34,6 +34,20 @@ option_list = list(
     default = NA,
     type = 'character',
     help = "The filepath to save the predictions at. Must have the extension `.csv`."
+  ),
+  make_option(
+    c("-c", "--control_labels"),
+    action = "store",
+    default = NA,
+    type = 'character',
+    help = "String with comma-separated control labels. Replace whitespace with underscores."
+  ),
+  make_option(
+    c("-l", "--cancer_labels"),
+    action = "store",
+    default = NA,
+    type = 'character',
+    help = "String with comma-separated cancer labels. Replace whitespace with underscores."
   )
 )
 opt = parse_args(OptionParser(option_list = option_list))
@@ -49,7 +63,12 @@ if (is.na(opt$out_model_file)){
 if (is.na(opt$out_preds_file)){
   stop("--out_preds_file was not specified.")
 }
-
+if (is.na(opt$control_labels)){
+  stop("--control_labels was not specified.")
+}
+if (is.na(opt$cancer_labels)){
+  stop("--cancer_labels was not specified.")
+}
 if (str_sub(opt$in_features_file, start= -4) != ".csv"){
   stop("--in_features_file must have the extension '.csv'.")
 }
@@ -67,7 +86,21 @@ if (str_sub(opt$out_preds_file, start= -4) != ".csv"){
 features.sl <- read_csv(opt$in_features_file)
 meta_data <- read_csv(opt$in_meta_file)
 # Assign class to data frame (but without spaces)
-features.sl["type"] <- stringr::str_replace_all(meta_data[[2]], " ", "_")
+original_labels <- stringr::str_replace_all(meta_data[[2]], " ", "_")
+control_labels <- str_split(opt$control_labels, pattern = ",")
+cancer_labels <- str_split(opt$cancer_labels, pattern = ",")
+
+print(paste0("Control labels: ", control_labels, collapse = TRUE))
+print(paste0("Cancer labels: ", cancer_labels, collapse = TRUE))
+
+features.sl["type"] <- dplyr::case_when(
+  original_labels %in% control_labels ~ "Control",
+  original_labels %in% cancer_labels ~ "Cancer",
+  TRUE ~ "Discard"
+)
+
+features.sl <- features.sl %>%
+  dplyr::filter(type != "Discard")
 
 print("Loaded features and labels: ")
 print(head(features.sl, 10))
