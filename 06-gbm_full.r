@@ -66,7 +66,8 @@ if (str_sub(opt$out_preds_file, start= -4) != ".csv"){
 # Load in features and add labels
 features.sl <- read_csv(opt$in_features_file)
 meta_data <- read_csv(opt$in_meta_file)
-features.sl["type"] <- meta_data[[2]]
+# Assign class to data frame (but without spaces)
+features.sl["type"] <- stringr::str_replace_all(meta_data[[2]], " ", "_")
 
 print("Loaded features and labels: ")
 print(head(features.sl, 10))
