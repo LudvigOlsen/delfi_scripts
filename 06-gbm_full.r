@@ -91,10 +91,12 @@ features.sl <- read_csv(opt$in_features_file) %>%
 meta_data <- read_csv(opt$in_meta_file)
 
 # Get the right classes
-original_labels <- stringr::str_replace_all(meta_data[[2]], " ", "_")
+original_labels <- stringr::str_replace_all(meta_data[[2]], " ", "_") %>% unlist(recursive = TRUE)
 control_labels <- str_split(opt$control_labels, pattern = ",") %>% unlist(recursive = TRUE)
 cancer_labels <- str_split(opt$cancer_labels, pattern = ",") %>% unlist(recursive = TRUE)
 
+
+print(paste0("Meta data labels: ", paste0(original_labels, collapse = ", ")))
 print(paste0("Control labels: ", paste0(control_labels, collapse = ", ")))
 print(paste0("Cancer labels: ", paste0(cancer_labels, collapse = ", ")))
 
