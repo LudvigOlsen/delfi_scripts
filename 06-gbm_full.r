@@ -92,8 +92,8 @@ meta_data <- read_csv(opt$in_meta_file)
 
 # Get the right classes
 original_labels <- stringr::str_replace_all(meta_data[[2]], " ", "_")
-control_labels <- str_split(opt$control_labels, pattern = ",")
-cancer_labels <- str_split(opt$cancer_labels, pattern = ",")
+control_labels <- str_split(opt$control_labels, pattern = ",") %>% unlist(recursive = TRUE)
+cancer_labels <- str_split(opt$cancer_labels, pattern = ",") %>% unlist(recursive = TRUE)
 
 print(paste0("Control labels: ", paste0(control_labels, collapse = ", ")))
 print(paste0("Cancer labels: ", paste0(cancer_labels, collapse = ", ")))
