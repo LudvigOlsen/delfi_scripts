@@ -90,8 +90,8 @@ original_labels <- stringr::str_replace_all(meta_data[[2]], " ", "_")
 control_labels <- str_split(opt$control_labels, pattern = ",")
 cancer_labels <- str_split(opt$cancer_labels, pattern = ",")
 
-print(paste0("Control labels: ", control_labels, collapse = TRUE))
-print(paste0("Cancer labels: ", cancer_labels, collapse = TRUE))
+print(paste0("Control labels: ", paste0(control_labels, collapse = ", ")))
+print(paste0("Cancer labels: ", paste0(cancer_labels, collapse = ", ")))
 
 features.sl["type"] <- dplyr::case_when(
   original_labels %in% control_labels ~ "Control",
