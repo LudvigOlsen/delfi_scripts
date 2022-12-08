@@ -4,6 +4,7 @@ library(caret)
 library(pROC)
 library(optparse)
 library(stringr)
+library(cvms)
 
 # Command line arguments
 option_list = list(
@@ -20,6 +21,13 @@ option_list = list(
     default = NA,
     type = 'character',
     help = "A file where the first 2 columns contain the sample IDs and labels. Must have the extension `.csv`."
+  ),
+  make_option(
+    c("-e", "--out_eval_file"),
+    action = "store",
+    default = NA,
+    type = 'character',
+    help = "The filepath to save the evaluations at. Must have the extension `.csv`."
   ),
   make_option(
     c("-o", "--out_model_file"),
@@ -57,6 +65,9 @@ if (is.na(opt$in_features_file)){
 if (is.na(opt$in_meta_file)){
   stop("--in_meta_file was not specified.")
 }
+if (is.na(opt$out_eval_file)){
+  stop("--out_eval_file was not specified.")
+}
 if (is.na(opt$out_model_file)){
   stop("--out_model_file was not specified.")
 }
@@ -75,12 +86,16 @@ if (str_sub(opt$in_features_file, start= -4) != ".csv"){
 if (str_sub(opt$in_meta_file, start= -4) != ".csv"){
   stop("--in_meta_file must have the extension '.csv'.")
 }
+if (str_sub(opt$out_eval_file, start= -4) != ".csv"){
+  stop("--out_eval_file must have the extension '.csv'.")
+}
 if (str_sub(opt$out_model_file, start= -4) != ".rds"){
   stop("--out_model_file must have the extension '.rds'.")
 }
 if (str_sub(opt$out_preds_file, start= -4) != ".csv"){
   stop("--out_preds_file must have the extension '.csv'.")
 }
+
 
 print("Options received from command line: ")
 print(opt)
@@ -147,22 +162,64 @@ saveRDS(models.list, opt$out_model_file)
 
 pred.tbl <- model_sl$pred %>%
   dplyr::as_tibble() %>%
-  filter(n.trees==150, interaction.depth==3)
+  filter(n.trees==150, interaction.depth==3) %>%
+  tidyr::separate(
+    col="Resample",
+    into=c("Fold", "Repetition"),
+    sep = "\\."
+  )
 
 # Save predictions before averaging them
 write.csv(pred.tbl, file = opt$out_preds_file)
 
-# Average predictions and add sample
-pred.tbl <- pred.tbl %>%
-  group_by(rowIndex) %>%
-  dplyr::summarize(
-    obs=obs[1],
-    Cancer=mean(Cancer)
+# Evaluate on the ID level
+# Takes mean of probabilities across repetitions
+# This is a diff implementation of what they do below
+# Although this uses a cutoff of 0.5
+id_evaluation_0.5 <- pred.tbl %>%
+  cvms::evaluate(
+    target_col = "obs",
+    prediction_cols = "Cancer",
+    type = "binomial",
+    id_col="rowIndex",
+    include_predictions=FALSE
   )
-pred.tbl$sample <-  meta_data[[1]]
 
-# Save averaged predictions
-write.csv(pred.tbl, file = paste0(str_sub(opt$out_preds_file, end= -5), ".avg.csv"))
+thresh95_idx <- floor(table(pred.tbl$obs)[["Cancer"]] * 0.05)
+
+cutoff <- (pred.tbl %>% filter(obs == "Control") %>%
+             arrange(desc(Cancer)))$Cancer[thresh95_idx]
+
+id_evaluation_spec95 <- pred.tbl %>%
+  cvms::evaluate(
+    target_col = "obs",
+    prediction_cols = "Cancer",
+    type = "binomial",
+    id_col="rowIndex",
+    include_predictions=FALSE,
+    cutoff = cutoff
+  )
+
+id_evaluations <- dplyr::bind_rows(
+  id_evaluation_0.5 %>% dplyr::mutate(Threshold=0.5),
+  id_evaluation_spec95 %>% dplyr::mutate(Threshold=cutoff)
+) %>%
+  dplyr::select(-"ROC", -"Confusion Matrix", -"Process")
+
+
+write.csv(id_evaluations, opt$out_eval_file)
+
+# # Average predictions and add sample
+# pred.tbl <- pred.tbl %>%
+#   group_by(rowIndex) %>%
+#   dplyr::summarize(
+#     obs=obs[1],
+#     Cancer=mean(Cancer)
+#   )
+# pred.tbl$sample <-  meta_data[[1]]
+#
+# # Save averaged predictions
+# write.csv(pred.tbl, file = paste0(str_sub(opt$out_preds_file, end= -5), ".avg.csv"))
 
 # ## 95% specificity
 # cutoff <- (pred.tbl %>% filter(type=="Healthy") %>%
