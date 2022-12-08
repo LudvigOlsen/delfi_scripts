@@ -162,7 +162,7 @@ pred.tbl <- pred.tbl %>%
 pred.tbl$sample <-  meta_data[[1]]
 
 # Save averaged predictions
-write.csv(pred.tbl, file = paste0(str_sub(opt$out_preds_file, end= -5)), ".avg.csv")
+write.csv(pred.tbl, file = paste0(str_sub(opt$out_preds_file, end= -5), ".avg.csv"))
 
 # ## 95% specificity
 # cutoff <- (pred.tbl %>% filter(type=="Healthy") %>%
