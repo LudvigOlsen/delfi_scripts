@@ -82,10 +82,15 @@ if (str_sub(opt$out_preds_file, start= -4) != ".csv"){
   stop("--out_preds_file must have the extension '.csv'.")
 }
 
+print("Options received from command line: ")
+print(opt)
+
 # Load in features and add labels
-features.sl <- read_csv(opt$in_features_file)
+features.sl <- read_csv(opt$in_features_file) %>%
+  dplyr::select(-1) # Remove samples column
 meta_data <- read_csv(opt$in_meta_file)
-# Assign class to data frame (but without spaces)
+
+# Get the right classes
 original_labels <- stringr::str_replace_all(meta_data[[2]], " ", "_")
 control_labels <- str_split(opt$control_labels, pattern = ",")
 cancer_labels <- str_split(opt$cancer_labels, pattern = ",")
@@ -98,6 +103,8 @@ features.sl["type"] <- dplyr::case_when(
   original_labels %in% cancer_labels ~ "Cancer",
   TRUE ~ "Discard"
 )
+
+print(paste0("Unique types: ", unique(features.sl["type"])))
 
 features.sl <- features.sl %>%
   dplyr::filter(type != "Discard")
