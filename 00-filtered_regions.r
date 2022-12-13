@@ -62,12 +62,31 @@ if (genome == "hg19"){
   ### hg38 gaps & blacklisted regions
   mySession <- browserSession()
   genome(mySession) <- genome
-  gaps <- getTable(ucscTableQuery(mySession, table="gap"))
-  gaps.hg38 <- GRanges(gaps$chrom, IRanges(gaps$chromStart,
-                                           gaps$chromEnd),
-                       type=gaps$type)
-  gaps.hg38 <- keepSeqlevels(gaps.hg38, paste0("chr", c(1:22, "X", "Y")),
-                             pruning.mode="coarse")
+  gaps <- getTable(ucscTableQuery(mySession, table="gap")) %>%
+    dplyr::select(chrom, chromStart, chromEnd, type)
+  centromeres_hg38 <- read.csv("centromere_coordinates_hg38.tsv", sep="\t") %>%
+    dplyr::mutate(type = "centromere") %>%
+    dplyr::select(chrom, chromStart, chromEnd, type) %>%
+    dplyr::group_by(chrom, type) %>%
+    # Collapse the two coordinate sets per chrom
+    dplyr::summarise(
+      chromStart = min(chromStart),
+      chromEnd = max(chromEnd),
+      .groups = "drop"
+    )
+
+  gaps <- dplyr::bind_rows(gaps, centromeres_hg38) %>%
+    dplyr::arrange(chrom, chromStart)
+
+  gaps.hg38 <- GRanges(
+    gaps$chrom,
+    IRanges(gaps$chromStart, gaps$chromEnd),
+    type=gaps$type
+  )
+  gaps.hg38 <- keepSeqlevels(
+    gaps.hg38, paste0("chr", c(1:22, "X", "Y")),
+    pruning.mode="coarse"
+  )
   hsapiens <- BSgenome.Hsapiens.UCSC.hg38::Hsapiens
   seqinfo(gaps.hg38) <- seqinfo(hsapiens)[seqlevels(gaps.hg38),]
   save(gaps.hg38, file="gaps.hg38.rda")
