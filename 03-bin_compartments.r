@@ -132,10 +132,21 @@ AB <- makeGRangesFromDataFrame(
 print("Made GRanges object")
 
 gc.correct <- function(coverage, bias) {
-  # Fails when there Infs/NAs in the bias
-  # So we set NAs to median GC
-  # TODO: Is this meaningful if the extremes are the NAs?
-  bias[is.na(bias)] <- median(bias, na.rm=TRUE)
+  # When a bin has zero overlapping fragments
+  # the GC is NA, as GC is average of overlapping fragments' GCs
+  # Hence the coverage will be 0 in those bins
+  # So we just avoid correcting those bins
+
+  if (any(is.na(bias))){
+    # Apply correction to bins that are not NA in bias (>0 coverage bins)
+    coverage[!is.na(bias)] <- gc.correct(coverage[!is.na(bias)], bias[!is.na(bias)])
+    return(coverage)
+  }
+
+  # If any of the coverage counts are Inf or NA
+  # We correct the other bins only
+  # NOTE: Happens in ratios, when the long count is 0, but ratios are
+  # not part of out our features
   if (any(is.na(coverage))){
     # We can't predict on NAs or Infs, so we correct the others only
     coverage[!is.na(coverage) & !is.infinite(coverage)] <- gc.correct(
@@ -165,13 +176,7 @@ armlevels <- c("1p","1q","2p","2q","3p","3q","4p","4q","5p","5q","6p","6q",
                "7p","7q","8p","8q", "9p", "9q","10p","10q","11p","11q","12p",
                "12q","13q","14q","15q","16p","16q","17p","17q","18p","18q",
                "19p", "19q","20p","20q","21q","22q")
-
-# Q: Does it work to not set these? It fails because there are 39 levels but only 22 chromosomes
-# A: It seems to run through yes. Don't know if it changes anything?
-# arms$arm <- armlevels
-
-# print("Set these arm levels: ")
-# print(arms$arm)
+arms$arm <- armlevels
 
 AB <- AB[-queryHits(findOverlaps(AB, gaps))]
 print("Removed intervals overlapping with gaps")
@@ -205,6 +210,7 @@ frag.list <- split(fragments, w)
 
 counts <- sapply(frag.list, function(x)
   countOverlaps(AB, x))
+
 if (min(w) > 100) {
   m0 <- matrix(
     0,
@@ -215,12 +221,23 @@ if (min(w) > 100) {
   counts <- cbind(m0, counts)
 }
 
+# Calculate average fragment GC for each bin
 olaps <- findOverlaps(fragments, AB)
 bin.list <- split(fragments[queryHits(olaps)], subjectHits(olaps))
-bingc <- rep(NA, length(bin.list))
-bingc[unique(subjectHits(olaps))] <-
-  sapply(bin.list, function(x)
-    mean(x$gc, na.rm=TRUE))
+# Previously, the bin list was not the same order
+# as `unique(subjectHits(olaps))` which was used for indexing
+# So we order it and use the names for indexing
+bin.list <- bin.list[order(as.integer(names(bin.list)))]
+bingc <- rep(NA, nrow(counts))
+bingc[as.integer(names(bin.list))] <-
+    sapply(bin.list, function(x)
+      mean(x$gc, na.rm=TRUE))
+
+# Old version ()
+# bingc <- rep(NA, length(bin.list))
+# bingc[unique(subjectHits(olaps))] <-
+#   sapply(bin.list, function(x)
+#     mean(x$gc, na.rm=TRUE))
 
 ### Get modes
 Mode <- function(x) {
@@ -237,8 +254,9 @@ short <- rowSums(counts[, 1:51])
 long <- rowSums(counts[, 52:121])
 ratio <- short / long # Inf when long is 0? NOTE: ratio is not used in features anyway
 
-print("Entering GC correction mode! Uhhh")
-print("Num elements: "); print(length(bingc))
+print()
+print("Data summaries before GC correction:")
+print(paste0("Num GC bins: ", length(bingc), " | Num short bins: ", length(short)))
 print("Bin GC summary: "); print(summary(bingc));
 print("Shorts summary: "); print(summary(short))
 print("Longs summary: "); print(summary(long))
@@ -248,6 +266,14 @@ short.corrected = gc.correct(short, bingc)
 long.corrected = gc.correct(long, bingc)
 nfrags.corrected = gc.correct(short + long, bingc)
 ratio.corrected = gc.correct(ratio, bingc)
+
+print()
+print("Data summaries after GC correction:")
+print("Num short elements: "); print(length(short))
+print("Shorts summary: "); print(summary(short))
+print("Longs summary: "); print(summary(long))
+print("Ratios summary: "); print(summary(ratio))
+
 
 AB$short <- short
 AB$long <- long

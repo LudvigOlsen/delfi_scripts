@@ -64,6 +64,7 @@ if (genome == "hg19"){
   genome(mySession) <- genome
   gaps <- getTable(ucscTableQuery(mySession, table="gap")) %>%
     dplyr::select(chrom, chromStart, chromEnd, type)
+  # Centromere coordinates were extracted following https://www.biostars.org/p/435003/#462800
   centromeres_hg38 <- read.csv("centromere_coordinates_hg38.tsv", sep="\t") %>%
     dplyr::mutate(type = "centromere") %>%
     dplyr::select(chrom, chromStart, chromEnd, type) %>%
