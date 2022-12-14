@@ -179,7 +179,7 @@ write.csv(pred.tbl, file = opt$out_preds_file)
 id_evaluation_0.5 <- pred.tbl %>%
   cvms::evaluate(
     target_col = "obs",
-    prediction_cols = "Cancer",
+    prediction_cols = "Control", # Predictions are of second class alphabetically
     type = "binomial",
     id_col="rowIndex",
     include_predictions=FALSE
@@ -193,7 +193,7 @@ cutoff <- (pred.tbl %>% filter(obs == "Control") %>%
 id_evaluation_spec95 <- pred.tbl %>%
   cvms::evaluate(
     target_col = "obs",
-    prediction_cols = "Cancer",
+    prediction_cols = "Control", # Predictions are of second class alphabetically
     type = "binomial",
     id_col="rowIndex",
     include_predictions=FALSE,
