@@ -8,6 +8,8 @@ method (short/long fragment ratios in 5mb bins). While we have attempted
 to stay as true to the original approach as possible, the following
 changes have been made:
 
+> NOTE: We gave up on this after a while as we kept getting chance-level results with the models. There is likely a bug somewhere, since the features conceptually should work. Let us know, if you get this running!
+
 1)  We have made it runnable with the HG38 assembly.
 
 2)  We have removed the summary statistics, as we only want the feature
