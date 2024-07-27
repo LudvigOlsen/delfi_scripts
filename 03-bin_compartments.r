@@ -40,7 +40,7 @@ option_list = list(
     action = "store",
     default = NA,
     type = 'character',
-    help = "A file with bin coordinates. Required when `--assembly` is 'hg38'. Must have the extension .rds."
+    help = "A file with bin coordinates. Only required when `--assembly` is 'hg38'. Must have the extension .rds. When not specificed, the file used by DELFI will be downloaded and used instead."
   ),
   make_option(
     c("-o", "--out_bins_file"),
